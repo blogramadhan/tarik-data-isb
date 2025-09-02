@@ -1,3 +1,9 @@
+# data
+data
+
+# bun
+bun.lockb
+
 # dependencies (bun install)
 node_modules
 
