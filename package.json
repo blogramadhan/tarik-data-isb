@@ -2,7 +2,12 @@
   "name": "tarik-data-isb",
   "private": true,
   "scripts": {
-    "rup": "bun run src/rup.ts"
+    "rup": "bun run src/rup.ts",
+    "daring": "bun run src/daring.ts",
+    "katalog": "bun run src/katalog.ts",
+    "katalogv6": "bun run src/katalogv6.ts",
+    "spse": "bun run src/spse.ts",
+    "sikap": "bun run src/sikap.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
