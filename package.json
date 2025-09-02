@@ -1,0 +1,16 @@
+{
+  "name": "tarik-data-isb",
+  "private": true,
+  "scripts": {
+    "rup": "bun run src/rup.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "duckdb": "^1.3.2"
+  }
+}
