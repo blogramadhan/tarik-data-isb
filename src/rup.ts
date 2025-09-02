@@ -194,3 +194,6 @@ async function fetchAndSave() {
 
     console.log(`🎉 Download data RUP selesai! Berhasil: ${totalDataFetched}, Gagal: ${totalDataFailed}, Dilewati: ${totalDataSkipped}`);
 }
+
+// Menjalankan fungsi utama
+fetchAndSave().catch(console.error);
