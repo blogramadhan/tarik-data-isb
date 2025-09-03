@@ -2,9 +2,6 @@
 
 Aplikasi Bun.js/TypeScript untuk mengunduh dan memproses data pengadaan barang/jasa dari sistem ISB (Inaproc Service Bus) LKPP secara otomatis.
 
-**Pembuat:** Kurnia Ramadhan, ST., M.Eng  
-**Instansi:** LPSE PROV KALIMANTAN BARAT
-
 ## 🎯 Deskripsi
 
 **Tarik Data ISB** adalah tools yang dirancang untuk mempermudah pengunduhan data pengadaan barang dan jasa dari berbagai sistem LKPP (Lembaga Kebijakan Pengadaan Barang/Jasa Pemerintah) Indonesia. Tools ini mendukung pengunduhan data dari 6 sistem utama:
