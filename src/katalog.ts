@@ -151,12 +151,12 @@ async function fetchAndSave() {
             // 2. Bukan tahun berjalan
             // 3. Bukan tahun sebelumnya (jika sudah melewati Februari tahun berjalan)
             if (allFilesExist && !(tahun === currentYear || (tahun === currentYear - 1 && currentMonth <= 2 ))) {
-                console.log(`⏭️ Melewati data ${jenis} ${tahun} untuk ${daerah} (sudah lengkap)`);
+                console.log(`⏭️ Melewati data tahun ${tahun} untuk ${daerah} (sudah lengkap)`);
                 totalDataSkipped++; // Tambahkan jumlah data yang dilewati
                 continue;
             }
 
-            console.log(`🔄 Mengambil ${jenis} ${tahun} untuk ${daerah} ...`);
+            console.log(`🔄 Mengambil data tahun ${tahun} untuk ${daerah} ...`);
             try {
                 // Ambil data dari API ISB
                 const url = buildURL(daerah as Daerah, "Ecat-PaketEPurchasing", { tahun });
