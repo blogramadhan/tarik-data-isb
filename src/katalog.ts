@@ -6,7 +6,7 @@ import { daerahList, jenisDataTypes, configMap, type Daerah, type JenisData } fr
 const tahunList = [2023, 2024, 2025];
 
 // Membuat URL API ISB berdasarkan parameter
-function buildURL(daerah: Daerah, jenis: JenisData, params: { tahun?: number, kodeKomoditas?: string, kodePenyedia?: string, kdKlpd?: string }) {
+function buildURL(daerah: Daerah, jenis: JenisData, params: { tahun?: number, kodeKomoditas?: string, kodePenyedia?: string, kdKlpd?: string }): string {
     const baseUrl = "https://isb.lkpp.go.id/isb-2/api";
 
     if (!configMap[daerah]) throw new Error(`Daerah tidak dikenal: ${daerah}`);
