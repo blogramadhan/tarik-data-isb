@@ -27,7 +27,7 @@ function buildURL(daerah: Daerah, jenis: JenisData, params: { tahun?: number, ko
         if (!params.tahun) throw new Error("Tahun diperlukan untuk data paket");
         parameter = `4:12/parameter/${params.tahun}:${daerah}`;
     }
-
+    
     return `${baseUrl}/${config.apiKey}/json/${config.kode}/${jenis}/tipe/${parameter}`;
 }
 
@@ -35,7 +35,7 @@ function buildURL(daerah: Daerah, jenis: JenisData, params: { tahun?: number, ko
 function findJsonFiles(dir: string): string[] {
     let results: string[] = [];
     const items = readdirSync(dir, { withFileTypes: true });
-
+    
     for (const item of items) {
         const fullPath = join(dir, item.name);
         if (item.isDirectory()) {
@@ -44,87 +44,87 @@ function findJsonFiles(dir: string): string[] {
             results.push(fullPath);
         }
     }
-
+    
     return results;
 }
 
 // Konversi file JSON ke format Parquet
 async function convertJsonToParquet() {
-    console.log("🔄 Memulai konversi JSON ke Parquet...")
-
+    console.log("🔄 Memulai konversi JSON ke Parquet...");
+    
     const dataDir = "data/katalog";
     if (!existsSync(dataDir)) {
         console.log("⚠️ Direktori data tidak ditemukan");
         return;
     }
-
+    
     // Cari semua file JSON
     const jsonFiles = findJsonFiles(dataDir);
     console.log(`🔍 Ditemukan ${jsonFiles.length} file JSON untuk dikonversi`);
-
+    
     const db = new duckdb.Database(':memory:');
     const conn = db.connect();
-
+    
     for (const jsonFile of jsonFiles) {
         try {
             const parquetFile = jsonFile.replace('.json', '.parquet');
             mkdirSync(dirname(parquetFile), { recursive: true });
-
+            
             conn.exec(`
-                COPY (SELECT * FROM read_json('${jsonFile}', auto_detect => true)) 
-                TO '${parquetFile}' (FORMAT 'parquet');
+                COPY (SELECT * FROM read_json('${jsonFile}', auto_detect=true))
+                TO '${parquetFile}' (FORMAT 'PARQUET');
             `);
-
+            
             console.log(`✅ Konversi berhasil: ${jsonFile} -> ${parquetFile}`);
         } catch (err: any) {
-            console.error(`❌ Gagal mengkonversi ${jsonFile}: ${err.message}`)
+            console.error(`❌ Gagal mengkonversi ${jsonFile}: ${err.message}`);
         }
     }
-
+    
     conn.close();
     db.close();
-    console.log("✅ Konversi JSON ke Parquet selesai")
+    console.log("✅ Konversi JSON ke Parquet selesai");
 }
 
 // Konversi file JSON ke format Excel
 async function convertJsonToExcel() {
     console.log("🔄 Memulai konversi JSON ke Excel...");
-
+    
     const dataDir = "data/katalog";
     if (!existsSync(dataDir)) {
         console.log("⚠️ Direktori data tidak ditemukan");
         return;
     }
-
+    
     // Cari semua file JSON
     const jsonFiles = findJsonFiles(dataDir);
     console.log(`🔍 Ditemukan ${jsonFiles.length} file JSON untuk dikonversi ke Excel`);
-
+    
     const db = new duckdb.Database(':memory:');
     const conn = db.connect();
-
+    
     for (const jsonFile of jsonFiles) {
         try {
             const excelFile = jsonFile.replace('.json', '.xlsx');
             mkdirSync(dirname(excelFile), { recursive: true });
-
+            
             // Gunakan DuckDB untuk membaca JSON dan mengekspor ke Excel
             conn.exec(`
                 INSTALL 'excel';
                 LOAD 'excel';
-                COPY (SELECT * FROM read_json('${jsonFile}', auto_detect => true)) 
-                TO '${excelFile}' (FORMAT 'xlsx');
+                COPY (SELECT * FROM read_json('${jsonFile}', auto_detect=true))
+                TO '${excelFile}' (FORMAT 'XLSX');
             `);
-
+            
             console.log(`✅ Konversi berhasil: ${jsonFile} -> ${excelFile}`);
         } catch (err: any) {
-            console.error(`❌ Gagal mengkonversi ${jsonFile} ke Excel: ${err.message}`)
+            console.error(`❌ Gagal mengkonversi ${jsonFile} ke Excel: ${err.message}`);
         }
     }
-
+    
     conn.close();
     db.close();
-    console.log("✅ Konversi JSON ke Excel selesai")
+    console.log("✅ Konversi JSON ke Excel selesai");
 }
 
 // Mengambil data dari API ISB dan menyimpan ke file JSON, Parquet, atau Excel
@@ -134,9 +134,9 @@ async function fetchAndSave() {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1; // getMonth() returns 0-11
 
-    let totalDataFetched = 0; // Variabel untuk menghitung total data yang berhasil diambil
+    let totalDataFetched = 0; // Variabel untuk menghitung total data yang diambil
     let totalDataFailed = 0; // Variabel untuk menghitung total data yang gagal diambil
-    let totalDataSkipped = 0; // Variabel untuk menghitung total data yang dilewatkan
+    let totalDataSkipped = 0; // Variabel untuk menghitung total data yang dilewati
 
     for (const daerah of daerahList) {
         for (const tahun of tahunList) {
@@ -150,28 +150,28 @@ async function fetchAndSave() {
             // 1. Semua file sudah ada
             // 2. Bukan tahun berjalan
             // 3. Bukan tahun sebelumnya (jika sudah melewati Februari tahun berjalan)
-            if (allFilesExist && !(tahun === currentYear || (tahun === currentYear - 1 && currentMonth <= 2 ))) {
+            if (allFilesExist && !(tahun === currentYear || (tahun === currentYear - 1 && currentMonth <= 2))) {
                 console.log(`⏭️ Melewati data tahun ${tahun} untuk ${daerah} (sudah lengkap)`);
                 totalDataSkipped++; // Tambahkan jumlah data yang dilewati
                 continue;
             }
 
-            console.log(`🔄 Mengambil data tahun ${tahun} untuk ${daerah} ...`);
+            console.log(`🔄 Mengambil data untuk ${daerah} tahun ${tahun}...`);
             try {
-                // Ambil data dari API ISB
+                // Ambil data paket e-purchasing
                 const url = buildURL(daerah as Daerah, "Ecat-PaketEPurchasing", { tahun });
                 const res = await fetch(url);
                 if (!res.ok) throw new Error(`Gagal fetch: ${res.status}`);
                 const response = await res.json() as { data?: any[] } | any[];
-
-                // Pastikan data berupa array
+                
+                // Pastikan data adalah array
                 const data = Array.isArray(response) ? response : response.data || [];
                 if (!data.length) {
                     console.log(`⚠️ Tidak ada data untuk ${daerah}/Ecat-PaketEPurchasing/${tahun}`);
                     continue;
                 }
 
-                totalDataFetched++; // Tambahkan jumlah data yang berhasil diambil
+                totalDataFetched++; // Tambahkan jumlah data yang diambil
 
                 // Simpan data paket ke file JSON
                 const jsonPath = `data/katalog/${daerah}/Ecat-PaketEPurchasing/${tahun}/data.json`;
@@ -183,7 +183,6 @@ async function fetchAndSave() {
                 const uniqueKodeKomoditas = new Set<string>();
                 const uniqueKodePenyedia = new Set<string>();
                 const uniqueKodeKlpd = new Set<string>();
-
                 data.forEach(item => {
                     if (item.kd_komoditas) uniqueKodeKomoditas.add(item.kd_komoditas);
                     if (item.kd_penyedia) uniqueKodePenyedia.add(item.kd_penyedia);
@@ -193,12 +192,11 @@ async function fetchAndSave() {
                 // Ambil dan simpan detail komoditas
                 const komoditasPath = `data/katalog/${daerah}/Ecat-KomoditasDetail/${tahun}/data.json`;
                 const komoditasDetails: any[] = [];
-
+                
                 for (const kodeKomoditas of uniqueKodeKomoditas) {
                     try {
                         const url = buildURL(daerah as Daerah, "Ecat-KomoditasDetail", { kodeKomoditas });
                         const res = await fetch(url);
-
                         if (!res.ok) throw new Error(`Gagal fetch: ${res.status}`);
                         const data = await res.json();
                         if (Array.isArray(data)) {
@@ -252,7 +250,7 @@ async function fetchAndSave() {
                         console.error(`❌ Gagal mengambil detail satker ${kdKlpd}:`, err.message);
                     }
                 }
-
+                
                 mkdirSync(dirname(satkerPath), { recursive: true });
                 writeFileSync(satkerPath, JSON.stringify(satkerDetails, null, 2));
                 console.log(`✅ Detail satker disimpan: ${satkerPath}`);
@@ -268,8 +266,8 @@ async function fetchAndSave() {
     await convertJsonToParquet();
     await convertJsonToExcel();
 
-    console.log(`🎉 Download data KATALOG selesai! Berhasil: ${totalDataFetched}, Gagal: ${totalDataFailed}, Dilewati: ${totalDataSkipped}`);
+    console.log(`🎉 Download data Katalog selesai! Berhasil: ${totalDataFetched}, Gagal: ${totalDataFailed}, Dilewati: ${totalDataSkipped}`);
 }
 
 // Menjalankan fungsi utama
-fetchAndSave().catch(console.error);
+fetchAndSave()
