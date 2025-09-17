@@ -102,7 +102,7 @@ async function convertJsonToExcel() {
                 INSTALL 'excel';
                 LOAD 'excel';
                 COPY (SELECT * FROM read_json('${jsonFile}', auto_detect => true)) 
-                TO '${excelFile}' (FORMAT 'xlsx');
+                TO '${excelFile}' (FORMAT 'xlsx', HEADER true);
             `);
 
             console.log(`✅ Konversi berhasil: ${jsonFile} -> ${excelFile}`);
